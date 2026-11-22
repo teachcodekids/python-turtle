@@ -1,8 +1,8 @@
 const projectWords = {
   th: {
     projects:'โปรเจกต์ของฉัน', newProject:'โปรเจกต์ใหม่', back:'โปรเจกต์ของฉัน', save:'บันทึกโปรเจกต์',
-    name:'ชื่อโปรเจกต์', untitled:'โปรเจกต์ไม่มีชื่อ', signIn:'เข้าสู่ระบบ', signOut:'ออกจากระบบ',
-    loading:'กำลังโหลดโปรเจกต์…', signInHint:'เข้าสู่ระบบเพื่อบันทึกและเปิดโปรเจกต์ของคุณ',
+    name:'ชื่อโปรเจกต์', untitled:'โปรเจกต์ไม่มีชื่อ', localInfo:'โปรเจกต์จะบันทึกไว้ในเบราว์เซอร์นี้',
+    loading:'กำลังโหลดโปรเจกต์…',
     loadError:'โหลดโปรเจกต์ไม่สำเร็จ', openError:'เปิดโปรเจกต์ไม่สำเร็จ', retry:'ลองใหม่',
     saved:'บันทึกแล้ว', saving:'กำลังบันทึก…', saveError:'บันทึกไม่สำเร็จ ลองอีกครั้ง',
     enterName:'กรุณาใส่ชื่อโปรเจกต์', tooLarge:'โค้ดยาวเกินขนาดที่บันทึกได้',
@@ -10,8 +10,8 @@ const projectWords = {
   },
   en: {
     projects:'My Projects', newProject:'New Project', back:'My Projects', save:'Save Project',
-    name:'Project name', untitled:'Untitled project', signIn:'Sign In', signOut:'Sign Out',
-    loading:'Loading projects…', signInHint:'Sign in to save and open your projects.',
+    name:'Project name', untitled:'Untitled project', localInfo:'Projects are saved in this browser.',
+    loading:'Loading projects…',
     loadError:'Could not load projects.', openError:'Could not open this project.', retry:'Try again',
     saved:'Saved', saving:'Saving…', saveError:'Could not save. Try again.',
     enterName:'Enter a project name.', tooLarge:'The code is too large to save.',
@@ -24,24 +24,38 @@ const projectEditor = byId('project-editor');
 const projectName = byId('project-name');
 const projectGrid = byId('project-grid');
 const newProject = byId('new-project');
-const account = byId('account');
 const saveProject = byId('save-project');
 const backToProjects = byId('back-to-projects');
 const retryProjects = byId('retry-projects');
-const signInPath = '/signin-with-chatgpt?return_to=%2F';
 let projects = [];
 let currentProject = null;
-let signedIn = null;
 let loadingProjects = false;
 let opening = false;
 let saving = false;
 let homeNotice = '';
 let editorNotice = '';
 
+const storageKey = 'python-turtle-projects:' + new URL('.', location.href).pathname;
+
+function readProjects() {
+  return JSON.parse(localStorage.getItem(storageKey) ?? '[]');
+}
+
 async function projectRequest(path = '', options) {
-  const response = await fetch('/api/projects' + path, options);
-  if (!response.ok) throw Object.assign(new Error('Project request failed'), {status:response.status});
-  return response.json();
+  const saved = readProjects();
+  if (!path) {
+    return {projects:saved.sort((a,b) => b.updated_at.localeCompare(a.updated_at))};
+  }
+  const id = path.slice(1);
+  if (options?.method === 'PUT') {
+    const {name,code} = JSON.parse(options.body);
+    const project = {id,name,code,updated_at:new Date().toISOString()};
+    localStorage.setItem(storageKey, JSON.stringify([project,...saved.filter(item => item.id !== id)]));
+    return project;
+  }
+  const project = saved.find(item => item.id === id);
+  if (!project) throw new Error('Project not found');
+  return project;
 }
 
 function updateProjectText() {
@@ -50,9 +64,6 @@ function updateProjectText() {
   });
   projectName.placeholder = projectText('name');
   projectName.setAttribute('aria-label', projectText('name'));
-  account.hidden = signedIn === null;
-  account.textContent = projectText(signedIn ? 'signOut' : 'signIn');
-  account.href = signedIn ? '/signout-with-chatgpt?return_to=%2F' : signInPath;
   byId('home-notice').textContent = homeNotice ? projectText(homeNotice) : '';
   byId('save-status').textContent = editorNotice ? projectText(editorNotice) : '';
   retryProjects.hidden = homeNotice !== 'loadError';
@@ -83,16 +94,9 @@ async function loadProjects() {
   updateProjectText();
   try {
     ({projects} = await projectRequest());
-    signedIn = true;
     homeNotice = '';
-  } catch (error) {
-    if (error.status === 401) {
-      signedIn = false;
-      projects = [];
-      homeNotice = 'signInHint';
-    } else {
-      homeNotice = 'loadError';
-    }
+  } catch {
+    homeNotice = 'loadError';
   } finally {
     loadingProjects = false;
     newProject.disabled = false;
@@ -120,9 +124,9 @@ async function openSavedProject(id) {
   opening = true;
   try {
     showProject(await projectRequest('/' + id));
-  } catch (error) {
-    if (error.status === 401) location.assign(signInPath);
-    else {homeNotice = 'openError';updateProjectText();}
+  } catch {
+    homeNotice = 'openError';
+    updateProjectText();
   } finally {
     opening = false;
   }
@@ -134,8 +138,6 @@ function hasEdits() {
 
 newProject.onclick = () => {
   if (opening || loadingProjects) return;
-  if (signedIn === false) {location.assign(signInPath);return;}
-  if (signedIn !== true) {loadProjects();return;}
   showProject({id:crypto.randomUUID(), name:projectText('untitled'), code:''});
   projectName.select();
 };
@@ -148,9 +150,6 @@ backToProjects.onclick = () => {
   home.hidden = false;
   byId('projects-heading').focus();
   loadProjects();
-};
-account.onclick = event => {
-  if (saving || (hasEdits() && !confirm(projectText('discard')))) event.preventDefault();
 };
 saveProject.onclick = async () => {
   if (!currentProject || saving) return;
@@ -173,9 +172,8 @@ saveProject.onclick = async () => {
     currentProject = {...saved,code};
     if (projectName.value.trim() === name) projectName.value = saved.name;
     editorNotice = 'saved';
-  } catch (error) {
-    editorNotice = error.status === 401 ? 'signInHint' : 'saveError';
-    if (error.status === 401) signedIn = false;
+  } catch {
+    editorNotice = 'saveError';
   } finally {
     saving = false;
     saveProject.disabled = false;
