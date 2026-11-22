@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="th">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Python Turtle</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#eaf5ff;color:#172d3b;font:16px system-ui,sans-serif}header{height:74px;background:#092449;color:white;display:flex;align-items:center;gap:13px;padding:0 4vw}h1{font-size:22px;margin:0}main{width:min(94%,1500px);margin:26px auto}h2{font-size:18px;margin:0}.workspace{display:grid;grid-template-columns:minmax(0,var(--left,45%)) 18px minmax(0,1fr);height:clamp(490px,calc(100dvh - 120px),1000px);min-height:0}.panel{min-width:0;min-height:0;display:flex;flex-direction:column;border-radius:14px;overflow:hidden;border:1px solid #cbd6df;background:#fff}.bar,.foot{padding:11px 14px;display:flex;gap:9px;justify-content:space-between;align-items:center;flex-wrap:wrap}.foot{font-size:14px;color:#405767;min-height:45px;border-top:1px solid #dbe5eb}.editor{background:#10254b;color:#ecf7ff;border-color:#10254b}.editor .foot{color:#b8cbd9;border-color:#344c5b}.editor .bar{background:#163461}button{cursor:pointer;border:1px solid #b8cbd5;color:#18394a;background:white;border-radius:8px;font:inherit;font-size:14px;padding:6px 10px}button:focus-visible,[role=separator]:focus-visible,textarea:focus-visible{outline:2px solid #38b892;outline-offset:-2px}.run{background:#79d8ff;border-color:#79d8ff;color:#092449;font-weight:700}textarea{resize:none;width:100%;background:transparent;border:0;color:#dff7f0;padding:18px;font:15px/1.65 ui-monospace,monospace;tab-size:4;white-space:pre}.stage{position:relative;flex:1;min-height:0;overflow:hidden;background:#fcfdff}canvas{display:block;width:100%;height:100%;cursor:crosshair;touch-action:pan-y}.tip{position:absolute;pointer-events:none;background:#183847;color:white;border-radius:6px;padding:5px 8px;font:13px monospace;white-space:nowrap}.split{cursor:col-resize;touch-action:none;display:grid;place-items:center}.split:after{content:"";display:block;background:#a4b7c3;width:4px;height:42px;border-radius:9px}.controls{display:flex;gap:5px}.error{white-space:pre-wrap;max-height:120px;overflow:auto;margin:0;padding:9px 14px;color:#ffbdba;font-size:13px}.error:empty{display:none}output{font-family:monospace}@media(max-width:700px){.workspace{grid-template-columns:1fr;grid-template-rows:minmax(0,var(--mobile,42%)) 18px minmax(0,1fr);height:850px}.split{cursor:row-resize}.split:after{width:42px;height:4px}}
+.editor .controls{flex-wrap:wrap}.editor .bar button:not(.run){background:#204778;color:#edf7fc;border-color:#587081}.editor-area{display:grid;grid-template-columns:auto minmax(0,1fr);flex:1;min-height:0;overflow:hidden}.line-gutter{background:#0d2041;color:#a0b5c4;overflow:hidden;text-align:right;user-select:none}.editor-layer{position:relative;min-width:0;min-height:0}.line-gutter,.highlight,#code{font:15px/1.65 ui-monospace,monospace;tab-size:4;font-variant-ligatures:none;white-space:pre;margin:0}.line-gutter{padding:18px 9px;min-width:42px}.highlight,#code{position:absolute;inset:0;width:100%;height:100%;padding:18px;border:0}.highlight{overflow:hidden;color:#dff7f0;pointer-events:none}.highlight pre{font:inherit;margin:0}.line-gutter pre{font:inherit;margin:0}#code{overflow:auto;color:transparent;caret-color:#fff}#code::selection{color:transparent;background:#7790ac66}.tok-keyword{color:#d9a9ff}.tok-string{color:#b9e88d}.tok-comment{color:#9caeb9}.tok-number{color:#ffd18a}.tok-call{color:#88dafe}.language{margin-left:auto;background:#163b68;color:white;border-color:#7192a1;padding:6px 9px;border-radius:8px;font:inherit;font-size:14px}.language option{background:#163b68}@media(forced-colors:active){.highlight{visibility:hidden}#code{color:CanvasText}#code::selection{color:HighlightText}}
+.playback{display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap;padding:9px 14px;border-top:1px solid #d4e5f5;background:#eef8ff;font-size:14px}.playback label{display:flex;align-items:center;gap:6px}.playback select{font:inherit;color:#113563;background:white;border:1px solid #a9c8e3;border-radius:6px;padding:4px}.playback output{margin-left:auto;color:#274e74;font-variant-numeric:tabular-nums}.playback button:disabled{opacity:.55;cursor:default}.controls{flex-wrap:wrap}
+
+body{background:#eaf2fb;color:#142e50}
+header{height:66px;background:#0b2345;border-bottom:1px solid #27496f}
+h1{font-size:21px;font-weight:680;letter-spacing:-.025em}
+main{margin-top:22px}
+.workspace{height:clamp(490px,calc(100dvh - 110px),1000px)}
+.panel{border-radius:16px;border-color:#ccdaea;box-shadow:0 5px 18px #163c6612}
+.editor{border-color:#213d60;background:#102341}
+.editor .bar{background:#172f52;border-bottom:1px solid #28476b}
+.bar{padding:13px 14px}
+h2{font-size:16px;font-weight:650;letter-spacing:-.01em}
+button,.language,.playback select{min-height:34px;border-radius:8px}
+button:hover:not(:disabled){background:#e9f5ff;border-color:#88b6db}
+.editor .bar button:not(.run):hover{background:#295988}
+.run:hover:not(:disabled){background:#a0e6ff;border-color:#a0e6ff}
+.language{background:#19375c;border-color:#547396}
+.split:after{background:#9cb4ce}
+.split:hover:after,.split:focus-visible:after{background:#2474b7}
+.stage{border-top:1px solid #dae6f4}
+.playback{background:#f3f8fe}
+.foot{border-top-color:#dae6f4}
+.editor .foot{border-color:#28476b}
+@media(max-width:700px){header{padding-inline:4vw}main{margin-top:14px}.workspace{height:850px}.bar,.playback{padding-inline:10px}}
+
+[hidden]{display:none!important}
+header a{color:#fff;text-decoration:none;white-space:nowrap;font-size:14px}
+.account{padding:8px 11px;border:1px solid #547396;border-radius:8px}
+.projects-home{max-width:1120px;margin-inline:auto}
+.projects-heading{margin:30px 0 18px}
+.projects-heading h2{font-size:clamp(26px,4vw,36px);letter-spacing:-.035em}
+.project-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(220px,100%),1fr));gap:14px}
+.project-card{display:flex;min-height:150px;align-items:flex-start;justify-content:space-between;flex-direction:column;text-align:left;padding:18px;border-color:#c6daed;border-radius:14px;overflow-wrap:anywhere}
+.project-card strong{font-size:17px}
+.project-card time{color:#45617f;font-size:13px}
+.new-project{align-items:center;justify-content:center;gap:8px;background:#1767b2;color:white;border-color:#1767b2;text-align:center}
+.new-project:hover:not(:disabled){background:#12558f;border-color:#12558f}
+.project-plus{font-size:40px;line-height:1}
+.project-toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 10px}
+.project-toolbar input{min-width:120px;flex:1;padding:8px 11px;border:1px solid #abc4df;border-radius:8px;font:inherit;color:#142e50}
+.project-toolbar output,.project-notice{font:14px system-ui,sans-serif;color:#315277}
+.project-save{background:#1767b2;color:white;border-color:#1767b2}
+.project-save:hover:not(:disabled){background:#12558f}
+@media(max-width:480px){header{gap:6px}header h1{font-size:17px}.account,.language{font-size:12px;padding-inline:6px}}
+</style></head>
+<body><header><h1>Python Turtle</h1><select id="language" class="language" aria-label="ภาษาของหน้าเว็บ"><option value="th" lang="th">ไทย</option><option value="en" lang="en">English</option></select><a id="account" class="account" href="/signin-with-chatgpt?return_to=%2F" target="_top" hidden></a></header>
+<main>
+<section id="projects-home" class="projects-home">
+  <div class="projects-heading"><h2 id="projects-heading" tabindex="-1" data-project-text="projects">โปรเจกต์ของฉัน</h2></div>
+  <div class="project-grid" id="project-grid">
+    <button type="button" class="project-card new-project" id="new-project"><span class="project-plus" aria-hidden="true">+</span><strong data-project-text="newProject">โปรเจกต์ใหม่</strong></button>
+  </div>
+  <p class="project-notice" id="home-notice" role="status"></p>
+  <button type="button" id="retry-projects" data-project-text="retry" hidden>ลองใหม่</button>
+</section>
+<section id="project-editor" hidden>
+  <div class="project-toolbar">
+    <button type="button" id="back-to-projects" data-project-text="back">โปรเจกต์ของฉัน</button>
+    <input id="project-name" maxlength="80" aria-label="ชื่อโปรเจกต์">
+    <button type="button" id="save-project" class="project-save" data-project-text="save">บันทึกโปรเจกต์</button>
+    <output id="save-status" role="status"></output>
+  </div>
+<div class="workspace" id="workspace">
+<section class="panel editor"><div class="bar"><h2 data-i18n="editor">เขียนโค้ด Python</h2><div class="controls"><button id="example" data-i18n="example">ตัวอย่าง</button><button id="clear-code" data-i18n="clearCode">ล้างโค้ด</button><button id="run" class="run">▶ รันโค้ด</button></div></div><div class="editor-area"><div class="line-gutter" id="line-gutter" aria-hidden="true"><pre id="line-numbers"></pre></div><div class="editor-layer"><div class="highlight" id="highlight" aria-hidden="true"><pre id="tokens"></pre></div><textarea id="code" aria-label="โค้ด Python" spellcheck="false" autocapitalize="off" autocomplete="off" wrap="off"></textarea></div></div><pre class="error" id="messages" role="status"></pre><div class="foot"><span id="status" role="status">พร้อมรัน</span><span>Ctrl / ⌘ + Enter</span></div></section>
+<div class="split" id="split" role="separator" tabindex="0" aria-label="ปรับขนาดพื้นที่โค้ดและพื้นที่วาด" aria-orientation="vertical" aria-valuemin="22" aria-valuemax="72" aria-valuenow="45"></div>
+<section class="panel"><div class="bar"><h2 data-i18n="drawing">พื้นที่วาด Turtle</h2><div class="controls"><button id="clear-picture" data-i18n="clearPicture">ล้างภาพ</button><button id="grid" aria-pressed="true">ซ่อนตาราง</button><button id="out" aria-label="ย่อภาพ">−</button><button id="reset" aria-label="คืนขนาดภาพ">100%</button><button id="in" aria-label="ขยายภาพ">+</button></div></div><div class="stage" id="stage"><canvas id="canvas" aria-label="ภาพวาดและตารางพิกัด Turtle"></canvas><span id="tip" class="tip" hidden></span></div><div class="playback"><label><span data-i18n="speed">ความเร็ว</span><select id="speed"><option value="0.5" data-i18n="slow">ช้า 0.5×</option><option value="1" data-i18n="normal" selected>ปกติ 1×</option><option value="2" data-i18n="fast">เร็ว 2×</option><option value="4">4×</option><option value="instant" data-i18n="instant">ทันที</option></select></label><button id="pause" disabled>พัก</button><button id="step" data-i18n="nextStep">ทีละขั้น</button><output id="progress"></output></div><div class="foot"><span data-i18n="origin">จุดกำเนิด (0, 0) อยู่กลางภาพ</span><output id="coords">x: —  y: —</output></div></section>
+</div></section></main><script src="studio.js"></script><script src="projects.js"></script></body></html>
